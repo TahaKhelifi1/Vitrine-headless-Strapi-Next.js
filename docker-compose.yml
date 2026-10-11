@@ -1,0 +1,35 @@
+services:
+  backend:
+    build: ./backend-accessoires
+    container_name: strapi-backend
+    env_file:
+      - ./backend-accessoires/.env
+    environment:
+      HOST: 0.0.0.0
+      PORT: 1337
+    ports:
+      - "1337:1337"
+    volumes:
+      - ./backend-accessoires/.tmp:/app/.tmp
+      - ./backend-accessoires/public/uploads:/app/public/uploads
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend-vitrine
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:1337
+    container_name: nextjs-frontend
+    environment:
+      API_URL: http://backend:1337
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
